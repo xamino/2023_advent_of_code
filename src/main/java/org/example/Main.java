@@ -5,6 +5,8 @@ import lombok.extern.java.Log;
 @Log
 public class Main
 {
+	private static final String DEFAULT_DAY = "1";
+
 	public static void main(String[] args)
 	{
 		if (args.length == 0)
@@ -15,7 +17,8 @@ public class Main
 		}
 		switch (args[0])
 		{
-			case "1" -> new One().run(args[1]);
+			case "default" -> main(new String[] { DEFAULT_DAY });
+			case "1" -> new One().run();
 			default -> log.info("Run with advent day as index followed by input file.");
 		}
 	}

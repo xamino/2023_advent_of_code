@@ -6,7 +6,7 @@ import lombok.extern.java.Log;
 public class One implements Day
 {
 	@Override
-	public void run(String input)
+	public void run()
 	{
 		log.info("Day one wip");
 	}
