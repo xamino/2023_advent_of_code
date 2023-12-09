@@ -1,13 +1,14 @@
 package org.example;
 
 import lombok.extern.java.Log;
+import java.io.IOException;
 
 @Log
 public class Main
 {
 	private static final String DEFAULT_DAY = "1";
 
-	public static void main(String[] args)
+	public static void main(String[] args) throws IOException
 	{
 		if (args.length == 0)
 		{

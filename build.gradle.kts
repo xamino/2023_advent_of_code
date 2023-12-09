@@ -18,6 +18,8 @@ dependencies {
 
 	testCompileOnly("org.projectlombok:lombok:1.18.30")
 	testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+
+	implementation("org.apache.commons:commons-lang3:3.0")
 }
 
 tasks.test {
