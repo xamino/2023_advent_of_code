@@ -6,7 +6,7 @@ import java.io.IOException;
 @Log
 public class Main
 {
-	private static final String DEFAULT_DAY = "2";
+	private static final String DEFAULT_DAY = "3";
 
 	public static void main(String[] args) throws IOException
 	{
@@ -21,6 +21,7 @@ public class Main
 			case "default" -> main(new String[] { DEFAULT_DAY });
 			case "1" -> new One().run();
 			case "2" -> new Two().run();
+			case "3" -> new Three().run();
 			default -> log.info("Run with advent day as index.");
 		}
 	}

@@ -19,7 +19,6 @@ public class Two implements Day
 	public void run() throws IOException
 	{
 		final String input = Files.readString(file);
-		log.info(input);
 
 		final Set<Game> games = Arrays.stream(input.split("\n"))
 			.map(Game::new)
