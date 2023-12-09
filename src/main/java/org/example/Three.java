@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +26,7 @@ public class Three implements Day
 		final String[] lines = input.split("\n");
 		Set<PartCandidate> candidates = new HashSet<>();
 
+		// Generate candidates
 		for (int row = 0; row < lines.length; row++)
 		{
 			Matcher result = findNumbers.matcher(lines[row]);
@@ -36,8 +38,12 @@ public class Three implements Day
 			}
 		}
 
+		// Calculate symbols
+		candidates.forEach(c -> c.findSymbol(lines));
+
+		// Calculate sum of all symbol parts
 		var sumOfValidParts = candidates.stream()
-			.filter(c -> c.valid(lines))
+			.filter(c -> c.symbol.isPresent())
 			.map(PartCandidate::getNumber)
 			.reduce(0, Integer::sum);
 		log.info("Sum of valid parts is " + sumOfValidParts);
@@ -55,13 +61,18 @@ public class Three implements Day
 
 		private final int end;
 
-		private boolean valid(String[] rows)
+		private Optional<Character> symbol = Optional.empty();
+
+		private Optional<String> symbolIndex = Optional.empty();
+
+		private void findSymbol(String[] rows)
 		{
-			return Set.of(-1, 0, 1).stream()
-				.map(i -> i + row)
-				.filter(i -> i >= 0 && i < rows.length)
-				.map(i -> getBoundingString(rows[i]))
-				.anyMatch(this::hasSymbol);
+			for (int i = Math.max(0, row - 1); i <= Math.min(rows.length - 1, row + 1); i++)
+			{
+				log.fine(number + ": checking row " + i);
+				String bounded = getBoundingString(rows[i]);
+				findAndSetSymbolFromRow(bounded, i);
+			}
 		}
 
 		/**
@@ -75,18 +86,22 @@ public class Three implements Day
 			return row.substring(subStart, subEnd);
 		}
 
-		private boolean hasSymbol(String value)
+		private void findAndSetSymbolFromRow(String row, int rowIndex)
 		{
-			for (char c : value.toCharArray())
+			for (int i = 0; i < row.toCharArray().length; i++)
 			{
+				char c = row.charAt(i);
 				if (Character.isDigit(c) || c == '.')
 				{
 					continue;
 				}
-				log.info("Symbol found: " + c);
-				return true;
+				symbol = Optional.of(c);
+				int charColumn = i + start;
+				symbolIndex = Optional.of(rowIndex + ":" + charColumn);
+				log.info(number + ": symbol " + c + " found at " + symbolIndex.get());
+				return;
 			}
-			return false;
+			log.info(number + ": no symbol found");
 		}
 	}
 }
