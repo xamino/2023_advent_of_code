@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Log
 public class Two implements Day
@@ -19,14 +21,20 @@ public class Two implements Day
 		final String input = Files.readString(file);
 		log.info(input);
 
-		var result = Arrays.stream(input.split("\n"))
+		final Set<Game> games = Arrays.stream(input.split("\n"))
 			.map(Game::new)
+			.collect(Collectors.toSet());
+
+		var sumValidIndexes = games.stream()
 			.filter(g -> g.isValid(12, 13, 14))
 			.map(Game::getIndex)
 			.reduce(0, Integer::sum);
+		log.info("Sum of valid game indexes is <" + sumValidIndexes + ">");
 
-		log.info("Sum of valid game indexes is <" + result + ">");
-
+		var sumGamePowers = games.stream()
+			.map(Game::gamePower)
+			.reduce(0, Integer::sum);
+		log.info("Sum of game powers is <" + sumGamePowers + ">");
 	}
 
 	@ToString
@@ -69,6 +77,11 @@ public class Two implements Day
 		private boolean isValid(int red, int green, int blue)
 		{
 			return maxRed <= red && maxGreen <= green && maxBlue <= blue;
+		}
+
+		private int gamePower()
+		{
+			return maxRed * maxGreen * maxBlue;
 		}
 	}
 }
