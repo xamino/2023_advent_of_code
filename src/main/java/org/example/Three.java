@@ -6,9 +6,7 @@ import lombok.extern.java.Log;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,11 +40,31 @@ public class Three implements Day
 		candidates.forEach(c -> c.findSymbol(lines));
 
 		// Calculate sum of all symbol parts
-		var sumOfValidParts = candidates.stream()
-			.filter(c -> c.symbol.isPresent())
-			.map(PartCandidate::getNumber)
-			.reduce(0, Integer::sum);
+		var sumOfValidParts = candidates.stream().filter(c -> c.symbol != null)
+			.map(PartCandidate::getNumber).reduce(0, Integer::sum);
 		log.info("Sum of valid parts is " + sumOfValidParts);
+
+		Map<String, List<Integer>> gearPartsBySymbolIndex = new HashMap<>();
+		candidates.forEach(c -> {
+			if (c.symbol == null || c.symbol != '*')
+			{
+				return;
+			}
+			gearPartsBySymbolIndex.putIfAbsent(c.symbolIndex, new ArrayList<>());
+			gearPartsBySymbolIndex.get(c.symbolIndex).add(c.number);
+		});
+		log.info(gearPartsBySymbolIndex.toString());
+		int sum = 0;
+		for (Map.Entry<String, List<Integer>> gearCandidates : gearPartsBySymbolIndex.entrySet())
+		{
+			var list = gearCandidates.getValue();
+			if (list.size() != 2)
+			{
+				continue;
+			}
+			sum += list.get(0) * list.get(1);
+		}
+		log.info("Sum of all gear ratios is " + sum);
 	}
 
 	@RequiredArgsConstructor
@@ -61,29 +79,25 @@ public class Three implements Day
 
 		private final int end;
 
-		private Optional<Character> symbol = Optional.empty();
+		private Character symbol;
 
-		private Optional<String> symbolIndex = Optional.empty();
+		@Getter
+		private String symbolIndex;
 
 		private void findSymbol(String[] rows)
 		{
 			for (int i = Math.max(0, row - 1); i <= Math.min(rows.length - 1, row + 1); i++)
 			{
 				log.fine(number + ": checking row " + i);
-				String bounded = getBoundingString(rows[i]);
+				String bounded = rows[i].substring(getBoundsStart(), Math.min(rows[i].length(),
+					end + 2));
 				findAndSetSymbolFromRow(bounded, i);
 			}
 		}
 
-		/**
-		 * Gets the string from the given row  with the same length, plus the single bounding
-		 * character, in an index safe way.
-		 */
-		private String getBoundingString(String row)
+		private int getBoundsStart()
 		{
-			int subStart = Math.max(0, start - 1);
-			int subEnd = Math.min(row.length(), end + 2);
-			return row.substring(subStart, subEnd);
+			return Math.max(0, start - 1);
 		}
 
 		private void findAndSetSymbolFromRow(String row, int rowIndex)
@@ -95,13 +109,13 @@ public class Three implements Day
 				{
 					continue;
 				}
-				symbol = Optional.of(c);
-				int charColumn = i + start;
-				symbolIndex = Optional.of(rowIndex + ":" + charColumn);
-				log.info(number + ": symbol " + c + " found at " + symbolIndex.get());
+				symbol = c;
+				int charColumn = i + getBoundsStart();
+				symbolIndex = rowIndex + ":" + charColumn;
+				log.info(number + ": symbol " + c + " found at " + symbolIndex);
 				return;
 			}
-			log.info(number + ": no symbol found");
+			log.fine(number + ": no symbol found");
 		}
 	}
 }
